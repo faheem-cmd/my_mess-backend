@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/user.models");
+const Amount = require("../models/amount.models");
 // const user = require("../services/user.service");
 
 const signup = async (req, res) => {
@@ -99,9 +100,61 @@ function getByUserId(req, res) {
   });
 }
 
+function addAmount(req, res, next) {
+  let user_id = req.user.user_data.user_id;
+  User.findById(user_id).then((data) => {
+    const newAmount = { amount: data.amount + req.body.amount };
+    history(user_id, req.body.amount, req.body.date);
+    User.findByIdAndUpdate(user_id, newAmount, (err, emp) => {
+      if (err) {
+        return res
+          .status(500)
+          .send({ error: "Problem with Updating the   Employee recored " });
+      }
+      res.send({ success: "Updation successfull" });
+    });
+  });
+}
+
+function history(user, rate, date) {
+  let amount = new Amount({
+    user,
+    rate,
+    date,
+  });
+  amount.save().then((data) => {
+    // res.status(200).json({ status: "success", data: data });
+    console.log(data);
+  });
+}
+
+function getAll(req, res, next) {
+  let user_id = req.user.user_data.user_id;
+  Amount.find({ user: user_id }).then((data) => {
+    res.status(200).json({ status: "success", data: data });
+  });
+}
+
+function getByAmt(req, res) {
+  Amount.find({ date: req.body.date }).then((data) => {
+    if (data.length > 0) {
+      res
+        .status(200)
+        .json({ status: "success", message: "available", data: data });
+    } else {
+      return res
+        .status(200)
+        .json({ status: "success", message: "No data found" });
+    }
+  });
+}
+
 module.exports = {
   signup,
   login,
   logout,
   getByUserId,
+  addAmount,
+  getAll,
+  getByAmt,
 };
