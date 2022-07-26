@@ -18,6 +18,6 @@ router.get("/meals/:id", meals.getById);
 router.put("/amount", auth.accessToken, user.addAmount);
 
 router.get("/all", auth.accessToken, user.getAll);
-router.get("/am", user.getByAmt);
+router.get("/am", auth.accessToken, user.getByAmt);
 
 module.exports = router;
