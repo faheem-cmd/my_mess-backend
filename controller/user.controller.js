@@ -163,7 +163,6 @@ function getByAmt(req, res) {
   Amount.find({ user: user_id }).then((data) => {
     if (data[0].user == user_id) {
       const newData = data.filter((item) => item.date == req.body.date);
-      console.log(newData, "myy");
       res
         .status(200)
         .json({ status: "success", message: "available", data: newData });
@@ -175,6 +174,33 @@ function getByAmt(req, res) {
   });
 }
 
+const filterByDate = (req, res) => {
+  console.log(req.body);
+  let user_id = req.user.user_data.user_id;
+  Amount.find({ user: user_id }).then((data) => {
+    if (data[0].user == user_id) {
+      var startDate = new Date(req.body.start_date);
+      var endDate = new Date(req.body.end_date);
+
+      var resultProductData = data.filter((a) => {
+        var date = new Date(a.date);
+        return date >= startDate && date <= endDate;
+      });
+      console.log(resultProductData, "jjdjd");
+
+      res.status(200).json({
+        status: "success",
+        message: "available",
+        data: resultProductData,
+      });
+    } else {
+      return res
+        .status(200)
+        .json({ status: "success", message: "No data found" });
+    }
+  });
+};
+
 module.exports = {
   signup,
   login,
@@ -183,4 +209,5 @@ module.exports = {
   addAmount,
   getAll,
   getByAmt,
+  filterByDate,
 };
